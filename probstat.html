@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rangkuman Probabilitas & Statistik Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        code, pre, .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.6);
+        }
+        .formula-box {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+            border-left: 4px solid #0284c7;
+        }
+        .dark .formula-box {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+            border-left: 4px solid #38bdf8;
+        }
+        /* Glassmorphism effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Mobile Menu Button & Brand -->
+                <div class="flex items-center gap-3">
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="bg-gradient-to-tr from-sky-500 to-indigo-600 text-white p-2 rounded-xl shadow-md">
+                            <i class="fa-solid fa-chart-pie text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-sky-600 to-indigo-600 dark:from-sky-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                                ProbStat Pro
+                            </h1>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Rangkuman & Tools Interaktif</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Input Bar -->
+                <div class="flex-1 max-w-md mx-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                        </div>
+                        <input type="text" id="search-input" placeholder="Cari rumus, konsep (misal: Mean, Sturges, NOIR)..." 
+                            class="w-full pl-9 pr-8 py-1.5 text-sm bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 dark:text-white transition-all">
+                        <button id="clear-search" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Controls (Theme Toggle & Quick Tools) -->
+                <div class="flex items-center gap-2">
+                    <a href="#kalkulator-section" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-50 text-sky-600 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-200 dark:border-sky-800 hover:bg-sky-100 transition-all">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Kalkulator</span>
+                    </a>
+                    <a href="#quiz-section" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-all">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>Kuis</span>
+                    </a>
+                    <button id="theme-toggle" class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all focus:outline-none" title="Ubah Mode">
+                        <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex gap-8">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:shrink-0 transition-transform duration-300 ease-in-out overflow-y-auto p-4 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 lg:hidden">
+                    <span class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul text-sky-500"></i> Navigasi Materi
+                    </span>
+                    <button id="close-sidebar-btn" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-2">
+                    Daftar Isi Materi
+                </div>
+
+                <nav class="space-y-1 text-sm font-medium" id="sidebar-nav">
+                    <a href="#sec-1" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 text-xs flex items-center justify-center font-bold">1</span>
+                        <span class="truncate">Data & Jenis Data</span>
+                    </a>
+                    <a href="#sec-2" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 text-xs flex items-center justify-center font-bold">2</span>
+                        <span class="truncate">Skala Pengukuran</span>
+                    </a>
+                    <a href="#sec-3" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 text-xs flex items-center justify-center font-bold">3</span>
+                        <span class="truncate">Teknik Pengumpulan</span>
+                    </a>
+                    <a href="#sec-4" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 text-xs flex items-center justify-center font-bold">4</span>
+                        <span class="truncate">Penyajian & Distribusi</span>
+                    </a>
+                    <a href="#sec-5" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 text-xs flex items-center justify-center font-bold">5</span>
+                        <span class="truncate">Diagram & Grafik</span>
+                    </a>
+                    <a href="#sec-6" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-center font-bold">6</span>
+                        <span class="truncate">Central Tendency</span>
+                    </a>
+                    <a href="#sec-7" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-center font-bold">7</span>
+                        <span class="truncate">Outlier & Penyebaran</span>
+                    </a>
+                    <a href="#sec-8" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs flex items-center justify-center font-bold">8</span>
+                        <span class="truncate">Skewness & Kurtosis</span>
+                    </a>
+                    <a href="#sec-9" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+                        <span class="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-xs flex items-center justify-center font-bold">9</span>
+                        <span class="truncate">Statistik Inferensial</span>
+                    </a>
+                    <a href="#sec-10" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-all font-semibold">
+                        <span class="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 text-xs flex items-center justify-center"><i class="fa-solid fa-bolt"></i></span>
+                        <span class="truncate">Cheat Sheet Rumus</span>
+                    </a>
+                </nav>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-1">
+                    <a href="#kalkulator-section" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/50 font-semibold transition-all">
+                        <i class="fa-solid fa-calculator w-5 text-center"></i>
+                        <span>Kalkulator Statistik</span>
+                    </a>
+                    <a href="#quiz-section" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-semibold transition-all">
+                        <i class="fa-solid fa-graduation-cap w-5 text-center"></i>
+                        <span>Kuis & Latihan</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer Badge -->
+            <div class="mt-6 p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 text-xs text-slate-500 dark:text-slate-400 text-center">
+                <p class="font-semibold text-slate-700 dark:text-slate-300">Statistik Teknik Elektro</p>
+                <p class="text-[11px] mt-0.5">Panduan Lengkap & Praktis</p>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay for mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+        <!-- Content Area -->
+        <main class="flex-1 min-w-0 space-y-10">
+
+            <!-- Hero Banner -->
+            <section class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl">
+                <div class="relative z-10 space-y-3 max-w-2xl">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md border border-white/20">
+                        <i class="fa-solid fa-book-open"></i> Ringkasan Materi Kuliah
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                        Probabilitas & Statistik
+                    </h2>
+                    <p class="text-sky-100 text-sm leading-relaxed">
+                        Panduan komprehensif konsep dasar, penyajian data, statistik deskriptif hingga inferensial. Dilengkapi dengan kalkulator otomatis dan kuis evaluasi.
+                    </p>
+                </div>
+                <!-- Decorative background shapes -->
+                <div class="absolute -right-8 -bottom-10 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute right-20 top-2 w-32 h-32 bg-indigo-400/20 rounded-full blur-xl pointer-events-none"></div>
+            </section>
+
+            <!-- Search Results Display Box (Hidden by default) -->
+            <div id="search-results-box" class="hidden p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                        <i class="fa-solid fa-search"></i> Hasil Pencarian
+                    </span>
+                    <span id="search-count" class="text-xs text-amber-600 dark:text-amber-400">0 ditemukan</span>
+                </div>
+                <p id="search-msg" class="text-xs text-slate-600 dark:text-slate-400">Menampilkan bagian yang cocok dengan kata kunci kamu.</p>
+            </div>
+
+            <!-- SECTION 1: DATA DAN JENIS DATA -->
+            <section id="sec-1" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 font-bold">01</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">1. Data dan Jenis Data</h3>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        <strong class="text-slate-800 dark:text-slate-100">Data</strong> adalah bahan dasar dalam proses statistik berupa keterangan atau fakta mengenai suatu kejadian/kondisi. Data yang diolah menjadi <strong class="text-sky-600 dark:text-sky-400">Informasi</strong> digunakan sebagai dasar pengambilan keputusan.
+                    </p>
+                </div>
+
+                <!-- Grid Data Classification -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- A. Sumber -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-sky-300 transition-all">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-database text-sky-500"></i>
+                            <h4 class="font-bold text-slate-800 dark:text-slate-100 text-base">A. Berdasarkan Sumber</h4>
+                        </div>
+                        <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                            <li class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-semibold text-sky-600 dark:text-sky-400 block mb-1">1. Data Primer</span>
+                                Diperoleh langsung dari sumber pertama (ukur tegangan/arus sendiri, pengujian motor, wawancara).
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-semibold text-sky-600 dark:text-sky-400 block mb-1">2. Data Sekunder</span>
+                                Diperoleh dari pihak lain yang sudah tersedia (Data BPS, laporan perusahaan, dataset publikasi).
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- B. Bentuk -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-sky-300 transition-all">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-shapes text-indigo-500"></i>
+                            <h4 class="font-bold text-slate-800 dark:text-slate-100 text-base">B. Berdasarkan Bentuk</h4>
+                        </div>
+                        <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                            <li class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-semibold text-indigo-600 dark:text-indigo-400 block mb-1">1. Kualitatif (Kategori)</span>
+                                Berupa atribut/kategori. Contoh: Kondisi motor (baik/rusak), Status (ON/OFF), Jenis sensor.
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-semibold text-indigo-600 dark:text-indigo-400 block mb-1">2. Kuantitatif (Angka)</span>
+                                Berbentuk nilai numerik. Contoh: Tegangan (220 V), Arus (5 A), Temperatur (35.5°C).
+                            </li>
+                        </ul>
+                        <div class="mt-3 p-2 bg-indigo-50 dark:bg-indigo-950/50 rounded-lg text-center text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                            💡 Tip: Kualitatif → Kategori | Kuantitatif → Angka
+                        </div>
+                    </div>
+
+                    <!-- C. Diskrit & Kontinu -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-sky-300 transition-all">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-calculator text-emerald-500"></i>
+                            <h4 class="font-bold text-slate-800 dark:text-slate-100 text-base">C. Diskrit & Kontinu</h4>
+                        </div>
+                        <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                            <li class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-semibold text-emerald-600 dark:text-emerald-400 block mb-1">1. Diskrit (Menghitung)</span>
+                                Hasil membilang/menghitung, berupa bilangan bulat. Contoh: Jumlah MHS (35), Jumlah sensor (8).
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-semibold text-emerald-600 dark:text-emerald-400 block mb-1">2. Kontinu (Mengukur)</span>
+                                Hasil pengukuran, memiliki pecahan/desimal. Contoh: Tegangan (12.56 V), Waktu (12.35 s).
+                            </li>
+                        </ul>
+                        <div class="mt-3 p-2 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg text-center text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                            💡 Tip: Menghitung → Diskrit | Mengukur → Kontinu
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: SKALA PENGUKURAN DATA (NOIR) -->
+            <section id="sec-2" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 font-bold">02</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">2. Skala Pengukuran Data (NOIR)</h3>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 text-xs sm:text-sm text-center font-bold text-sky-600 dark:text-sky-400 border border-slate-200 dark:border-slate-800">
+                    Urutan Tingkatan: Nominal &rarr; Ordinal &rarr; Interval &rarr; Rasio
+                    <span class="block text-xs font-normal text-slate-500 mt-1">(Semakin ke kanan, informasi semakin lengkap)</span>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 uppercase font-semibold">
+                            <tr>
+                                <th class="p-3 sm:p-4">Skala</th>
+                                <th class="p-3 sm:p-4">Pengertian</th>
+                                <th class="p-3 sm:p-4">Ciri Utama</th>
+                                <th class="p-3 sm:p-4">Contoh</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-3 sm:p-4 font-bold text-sky-600 dark:text-sky-400">Nominal</td>
+                                <td class="p-3 sm:p-4">Hanya membedakan kategori tanpa urutan.</td>
+                                <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs">Label / Kode saja</span></td>
+                                <td class="p-3 sm:p-4">Jenis sensor (1=Suhu, 2=Tekanan, 3=Cahaya). Angka 3 bukan berarti lebih tinggi.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-3 sm:p-4 font-bold text-indigo-600 dark:text-indigo-400">Ordinal</td>
+                                <td class="p-3 sm:p-4">Membedakan + memiliki urutan/tingkatan.</td>
+                                <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs">Ada Tingkatan</span></td>
+                                <td class="p-3 sm:p-4">Kepuasan (1=Buruk, 2=Cukup, 3=Baik, 4=Sangat Baik). Jarak antar nilai tak harus sama.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-3 sm:p-4 font-bold text-emerald-600 dark:text-emerald-400">Interval</td>
+                                <td class="p-3 sm:p-4">Ada urutan + jarak bernilai sama, tanpa nol mutlak.</td>
+                                <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs">Tanpa Nol Mutlak</span></td>
+                                <td class="p-3 sm:p-4">Suhu (°C). 0°C bukan berarti tidak ada temperatur sama sekali.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-3 sm:p-4 font-bold text-amber-600 dark:text-amber-400">Rasio</td>
+                                <td class="p-3 sm:p-4">Interval + memiliki <strong class="text-amber-600 dark:text-amber-400">Nol Mutlak</strong>.</td>
+                                <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs">Paling Lengkap</span></td>
+                                <td class="p-3 sm:p-4">Daya (W), Arus (A), Waktu (s). 20W adalah tepat 2 kali lipat dari 10W.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECTION 3: TEKNIK PENGUMPULAN DATA -->
+            <section id="sec-3" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 font-bold">03</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">3. Teknik Pengumpulan Data</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-3 text-lg">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-base mb-1">Observasi</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Pengamatan langsung terhadap objek / kejadian.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300"><strong>Contoh:</strong> Mengamati motor, ukur temp panel, respons kendali.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3 text-lg">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-base mb-1">Interview / Wawancara</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Informasi langsung dari responden kompeten.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300"><strong>Cocok:</strong> Menggali pengalaman, persepsi, atau akar masalah.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3 text-lg">
+                            <i class="fa-solid fa-clipboard-question"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-base mb-1">Kuesioner</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Pertanyaan tertulis untuk banyak responden.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300"><strong>Contoh:</strong> Skala Likert (STS - TS - N - S - SS).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: PENYAJIAN DATA & DISTRIBUSI FREKUENSI -->
+            <section id="sec-4" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 font-bold">04</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">4. Distribusi Frekuensi & Rumus Sturges</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Formula Cards -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-square-root-variable text-sky-500"></i> Rumus Penting Distribusi
+                        </h4>
+
+                        <!-- Rentang -->
+                        <div class="formula-box p-3 rounded-xl">
+                            <span class="text-xs font-semibold text-sky-700 dark:text-sky-300">1. Rentang (R)</span>
+                            <div class="text-center my-1 text-base font-mono font-bold text-slate-800 dark:text-white">
+                                R = X<sub>maks</sub> - X<sub>min</sub>
+                            </div>
+                        </div>
+
+                        <!-- Aturan Sturges -->
+                        <div class="formula-box p-3 rounded-xl">
+                            <span class="text-xs font-semibold text-sky-700 dark:text-sky-300">2. Banyak Kelas - Aturan Sturges (k)</span>
+                            <div class="text-center my-1 text-base font-mono font-bold text-slate-800 dark:text-white">
+                                k = 1 + 3.3 log(n)
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 text-center">n = Jumlah Data (Umumnya k sekitar 5 - 8 kelas)</p>
+                        </div>
+
+                        <!-- Panjang Interval -->
+                        <div class="formula-box p-3 rounded-xl">
+                            <span class="text-xs font-semibold text-sky-700 dark:text-sky-300">3. Panjang Interval Kelas (i)</span>
+                            <div class="text-center my-1 text-base font-mono font-bold text-slate-800 dark:text-white">
+                                i = R / k
+                            </div>
+                        </div>
+
+                        <!-- Titik Tengah -->
+                        <div class="formula-box p-3 rounded-xl">
+                            <span class="text-xs font-semibold text-sky-700 dark:text-sky-300">4. Titik Tengah Kelas (X<sub>i</sub>)</span>
+                            <div class="text-center my-1 text-base font-mono font-bold text-slate-800 dark:text-white">
+                                X<sub>i</sub> = (Batas Bawah + Batas Atas) / 2
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cumulative Info Box -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-list-ol text-indigo-500"></i> Frekuensi Kumulatif
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
+                                Dijumlahkan secara berurutan untuk melihat total frekuensi hingga interval tertentu:
+                            </p>
+                            <ul class="space-y-2 text-xs">
+                                <li class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                                    <strong class="text-sky-600 dark:text-sky-400">Kumulatif Kurang Dari:</strong> Dijumlahkan dari kelas pertama sampai kelas yang dituju.
+                                </li>
+                                <li class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                                    <strong class="text-indigo-600 dark:text-indigo-400">Kumulatif Lebih Dari:</strong> Dijumlahkan dari kelas yang dituju sampai kelas terakhir.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50">
+                            <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 block mb-1">📌 Contoh Titik Tengah:</span>
+                            <p class="text-xs text-slate-600 dark:text-slate-300">
+                                Interval kelas: <strong>151 - 153</strong><br>
+                                Titik tengah X<sub>i</sub> = (151 + 153) / 2 = <strong>152</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: DIAGRAM PENYAJIAN DATA -->
+            <section id="sec-5" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 font-bold">05</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">5. Diagram Penyajian Data</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-sky-600 dark:text-sky-400 font-bold text-sm">
+                            <i class="fa-solid fa-chart-column"></i> Diagram Batang
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Batang terpisah dengan lebar sama. Cocok untuk membandingkan antar kategori.</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm">
+                            <i class="fa-solid fa-chart-pie"></i> Diagram Lingkaran
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mb-2">Menampilkan proporsi keseluruhan 100%.</p>
+                        <div class="text-[11px] font-mono bg-slate-100 dark:bg-slate-800 p-2 rounded-lg text-slate-700 dark:text-slate-300">
+                            Sudut (&theta;) = (f / N) &times; 360&deg;<br>
+                            Persen (P) = (f / N) &times; 100%
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                            <i class="fa-solid fa-chart-line"></i> Diagram Garis
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Titik dihubungkan garis. Digunakan untuk melihat perkembangan terhadap waktu (tren).</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-amber-600 dark:text-amber-400 font-bold text-sm">
+                            <i class="fa-solid fa-chart-simple"></i> Histogram
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Batang <strong>saling berimpitan</strong>. Sumbu X = Kelas interval, Sumbu Y = Frekuensi.</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm sm:col-span-2 lg:col-span-2">
+                        <div class="flex items-center gap-2 mb-2 text-purple-600 dark:text-purple-400 font-bold text-sm">
+                            <i class="fa-solid fa-circle-nodes"></i> Poligon Frekuensi
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Garis yang menghubungkan setiap <strong>titik tengah (X<sub>i</sub>)</strong> dari tiap kelas pada histogram.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 6: CENTRAL TENDENCY (UKURAN PEMUSATAN) -->
+            <section id="sec-6" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 font-bold">06</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">6. Central Tendency (Ukuran Pemusatan)</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Mean -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">Mean</span>
+                            <h4 class="font-bold text-base text-slate-800 dark:text-white mt-2 mb-1">Rata-rata Nilai</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Jumlah seluruh nilai dibagi banyaknya data.</p>
+                            <div class="formula-box p-3 rounded-xl mb-3 text-center">
+                                <span class="text-[11px] text-slate-500 block">Sampel / Populasi:</span>
+                                <span class="font-mono font-bold text-sm text-slate-800 dark:text-white">&bar;x = &sum;x / n &nbsp;|&nbsp; &mu; = &sum;X / N</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg">Contoh: Data (5,6,7,8,9) &rarr; Mean = 35/5 = <strong>7</strong></p>
+                    </div>
+
+                    <!-- Median -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">Median</span>
+                            <h4 class="font-bold text-base text-slate-800 dark:text-white mt-2 mb-1">Nilai Tengah</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Nilai tengah setelah data diurutkan dari terkecil.</p>
+                            <div class="formula-box p-3 rounded-xl mb-3 text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                                <p>Ganjil: Me = X<sub>(n+1)/2</sub></p>
+                                <p>Genap: Me = (X<sub>n/2</sub> + X<sub>(n/2)+1</sub>) / 2</p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg">Contoh: Data (3, 5, 7, 8) &rarr; Me = (5+7)/2 = <strong>6</strong></p>
+                    </div>
+
+                    <!-- Modus -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">Modus</span>
+                            <h4 class="font-bold text-base text-slate-800 dark:text-white mt-2 mb-1">Paling Sering Muncul</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Nilai dengan frekuensi terbanyak dalam himpunan data.</p>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-300 mb-3">
+                                *Jika semua angka muncul 1 kali, maka <strong>tidak ada modus</strong>.
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg">Contoh: Data (2, 3, 3, 4, 5) &rarr; Mo = <strong>3</strong></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7: OUTLIER & UKURAN PENYEBARAN DATA -->
+            <section id="sec-7" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 font-bold">07</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">7. Outlier & Ukuran Penyebaran Data</h3>
+                </div>
+
+                <!-- Outlier Box -->
+                <div class="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Outlier (Pencilan)
+                        </span>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900/80 text-amber-900 dark:text-amber-200 font-semibold">Sangat Ekstrem</span>
+                    </div>
+                    <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        Data yang menyimpang secara ekstrem dari kelompoknya. Outlier sangat memengaruhi nilai <strong>Mean</strong>, sedangkan <strong>Median</strong> lebih tahan (resisten) terhadap outlier.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                        <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-amber-100 dark:border-amber-900/40">
+                            <strong>Global Outlier:</strong> 1 titik data sangat ekstrim (Contoh: [9, 155, 165, 617] &rarr; 9 dan 617).
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-amber-100 dark:border-amber-900/40">
+                            <strong>Collective Outlier:</strong> Sekelompok titik menyimpang secara bersamaan.
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-amber-100 dark:border-amber-900/40">
+                            <strong>Contextual Outlier:</strong> Menyimpang hanya dalam situasi/konteks tertentu.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ukuran Penyebaran -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-2">Range (Jangkauan)</h4>
+                        <div class="formula-box p-3 rounded-xl mb-2 text-center font-mono font-bold text-sm">
+                            Range = X<sub>maks</sub> - X<sub>min</sub>
+                        </div>
+                        <p class="text-xs text-slate-500">Selisih antara data terbesar dan data terkecil.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-2">Varians (s<sup>2</sup> / &sigma;<sup>2</sup>)</h4>
+                        <div class="formula-box p-3 rounded-xl mb-2 text-center font-mono font-bold text-xs">
+                            s<sup>2</sup> = &sum;(x<sub>i</sub> - &bar;x)<sup>2</sup> / (n - 1)
+                        </div>
+                        <p class="text-xs text-slate-500">Rata-rata kuadrat jarak data dari mean (mengukur sebaran).</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-2">Standar Deviasi (s / &sigma;)</h4>
+                        <div class="formula-box p-3 rounded-xl mb-2 text-center font-mono font-bold text-xs">
+                            s = &radic;(Varians Sampel)
+                        </div>
+                        <p class="text-xs text-slate-500">Akar varians. Makin besar, data makin menyebar dari mean.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 8: SKEWNESS, KURTOSIS & FRACTILE -->
+            <section id="sec-8" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold">08</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">8. Bentuk Distribusi (Skewness & Kurtosis)</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Skewness -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                        <h4 class="font-bold text-indigo-600 dark:text-indigo-400 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area"></i> Skewness (Kemencengan)
+                        </h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold text-slate-800 dark:text-slate-200 block">Simetris (Normal)</span>
+                                Mean = Median = Modus
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold text-indigo-600 dark:text-indigo-400 block">Miring Kanan (Positif)</span>
+                                Mean &gt; Median &gt; Modus
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold text-purple-600 dark:text-purple-400 block">Miring Kiri (Negatif)</span>
+                                Modus &gt; Median &gt; Mean
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kurtosis & Fractile -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                        <h4 class="font-bold text-indigo-600 dark:text-indigo-400 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-[#]"></i> Kurtosis & Fractile
+                        </h4>
+                        <div class="text-xs space-y-2">
+                            <span class="font-bold text-slate-800 dark:text-slate-200 block">Kurtosis (Keruncingan):</span>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-300">
+                                <li><strong>Leptokurtik:</strong> Sangat runcing</li>
+                                <li><strong>Mesokurtik:</strong> Normal / sedang</li>
+                                <li><strong>Platikurtik:</strong> Lebih landai / datar</li>
+                            </ul>
+
+                            <span class="font-bold text-slate-800 dark:text-slate-200 block pt-2">Fractile (Pembagi Data):</span>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-300">
+                                <li><strong>Kuartil (Q):</strong> Membagi data jadi 4 bagian. (Q<sub>2</sub> = Median)</li>
+                                <li><strong>Desil (D):</strong> Membagi data jadi 10 bagian.</li>
+                                <li><strong>Persentil (P):</strong> Membagi data jadi 100 bagian.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 9: STATISTIK INFERENSIAL -->
+            <section id="sec-9" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-300 font-bold">09</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">9. Statistik Inferensial</h3>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-center text-xs sm:text-sm font-semibold text-purple-800 dark:text-purple-200">
+                    Alur Utama: Sampel &rarr; Analisis Statistik &rarr; Kesimpulan untuk Populasi
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Regresi Linear -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400 text-sm">A. Regresi Linear</h4>
+                        <p class="text-xs text-slate-500">Menganalisis hubungan antar variabel independen (X) dan dependen (Y) untuk prediksi.</p>
+                        <div class="formula-box p-3 rounded-xl text-center font-mono font-bold text-sm">
+                            Y = a + bX
+                        </div>
+                        <p class="text-[11px] text-slate-500">a = konstanta, b = koefisien regresi</p>
+                    </div>
+
+                    <!-- Uji Hipotesis -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400 text-sm">B. Uji Hipotesis</h4>
+                        <p class="text-xs text-slate-500">Mengetahui apakah suatu asumsi/klaim dapat diterima atau ditolak berdasarkan sampel.</p>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+                            Contoh: Menguji apakah metode kontrol baru meningkatkan efisiensi motor elektro.
+                        </div>
+                    </div>
+
+                    <!-- Confidence Interval -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400 text-sm">C. Confidence Interval</h4>
+                        <p class="text-xs text-slate-500">Rentang estimasi parameter populasi berdasarkan sampel.</p>
+                        <div class="formula-box p-3 rounded-xl text-center font-mono font-bold text-xs">
+                            CI = &bar;x &plusmn; z &middot; (&sigma; / &radic;n)
+                        </div>
+                        <p class="text-[11px] text-slate-500">Tingkat kepercayaan umum: 95%</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 10: CHEAT SHEET RUMUS WAJIB HAFAL -->
+            <section id="sec-10" class="scroll-mt-20 space-y-4 searchable-section">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-300 font-bold"><i class="fa-solid fa-fire"></i></span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">10. Cheat Sheet Rumus Ujian</h3>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-950 border border-amber-500/30 text-white shadow-xl space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-lg font-bold text-amber-400">🔥 Ringkasan Rumus Wajib Diingat</h4>
+                            <p class="text-xs text-slate-300">Gunakan sebagai contekan cepat belajar sebelum ujian!</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-slate-950">Quick Review</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-mono">
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Rentang Data</span>
+                            <div class="text-sm font-bold">R = X<sub>max</sub> - X<sub>min</sub></div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Banyak Kelas (Sturges)</span>
+                            <div class="text-sm font-bold">k = 1 + 3.3 log(n)</div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Panjang Interval</span>
+                            <div class="text-sm font-bold">i = R / k</div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Mean Sampel</span>
+                            <div class="text-sm font-bold">&bar;x = &sum;x / n</div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Varians Sampel</span>
+                            <div class="text-sm font-bold">s<sup>2</sup> = &sum;(x - &bar;x)<sup>2</sup> / (n - 1)</div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Standar Deviasi</span>
+                            <div class="text-sm font-bold">s = &radic;s<sup>2</sup></div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Sudut Lingkaran</span>
+                            <div class="text-sm font-bold">&theta; = (f / N) &times; 360&deg;</div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Persentase</span>
+                            <div class="text-sm font-bold">P = (f / N) &times; 100%</div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                            <span class="text-amber-400 font-sans font-semibold block">Regresi Linear</span>
+                            <div class="text-sm font-bold">Y = a + bX</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KALKULATOR STATISTIK INTERAKTIF -->
+            <section id="kalkulator-section" class="scroll-mt-20 space-y-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-sky-500 text-white shadow-lg">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Kalkulator Statistik Interaktif</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Hitung otomatis parameter statistik secara instant</p>
+                    </div>
+                </div>
+
+                <!-- Calculator Tabs -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Kalkulator 1: Central Tendency & Penyebaran -->
+                    <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg space-y-4 lg:col-span-2">
+                        <h4 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-sky-500"></i> Hitung Central Tendency & Penyebaran
+                        </h4>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Masukkan Data (Pisahkan dengan koma):</label>
+                            <input type="text" id="calc-data-input" value="10, 12, 15, 18, 20, 20, 25" 
+                                class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none">
+                            <span class="text-[11px] text-slate-400 mt-1 block">Contoh: 12, 15.5, 20, 22, 18</span>
+                        </div>
+
+                        <button id="btn-calc-stats" class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Hitung Statistik Data
+                        </button>
+
+                        <!-- Output Display Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-center" id="stats-output-grid">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-[11px] text-slate-400 block uppercase font-medium">Banyak Data (n)</span>
+                                <span id="out-n" class="text-base font-bold text-sky-600 dark:text-sky-400">7</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-[11px] text-slate-400 block uppercase font-medium">Mean (&bar;x)</span>
+                                <span id="out-mean" class="text-base font-bold text-sky-600 dark:text-sky-400">17.14</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-[11px] text-slate-400 block uppercase font-medium">Median (Me)</span>
+                                <span id="out-median" class="text-base font-bold text-sky-600 dark:text-sky-400">18</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-[11px] text-slate-400 block uppercase font-medium">Modus (Mo)</span>
+                                <span id="out-mode" class="text-base font-bold text-sky-600 dark:text-sky-400">20</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-[11px] text-slate-400 block uppercase font-medium">Range (R)</span>
+                                <span id="out-range" class="text-base font-bold text-sky-600 dark:text-sky-400">15</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-[11px] text-slate-400 block uppercase font-medium">Std Deviasi (s)</span>
+                                <span id="out-std" class="text-base font-bold text-sky-600 dark:text-sky-400">5.18</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kalkulator 2: Aturan Sturges -->
+                    <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg space-y-4">
+                        <h4 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-indigo-500"></i> Hitung Aturan Sturges
+                        </h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Jumlah Data (n):</label>
+                                <input type="number" id="sturges-n" value="50" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nilai Maksimum (Xmax):</label>
+                                <input type="number" id="sturges-max" value="95" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nilai Minimum (Xmin):</label>
+                                <input type="number" id="sturges-min" value="30" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none">
+                            </div>
+                        </div>
+
+                        <button id="btn-calc-sturges" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow transition-all">
+                            Hitung Kelas & Interval
+                        </button>
+
+                        <div class="p-3 bg-indigo-50 dark:bg-indigo-950/50 rounded-xl text-xs space-y-1.5 border border-indigo-100 dark:border-indigo-900/50">
+                            <div class="flex justify-between"><span>Rentang (R):</span> <strong id="out-sturges-r" class="text-indigo-600 dark:text-indigo-400">65</strong></div>
+                            <div class="flex justify-between"><span>Banyak Kelas (k):</span> <strong id="out-sturges-k" class="text-indigo-600 dark:text-indigo-400">6.61 &rarr; 7</strong></div>
+                            <div class="flex justify-between"><span>Panjang Interval (i):</span> <strong id="out-sturges-i" class="text-indigo-600 dark:text-indigo-400">9.27 &rarr; 10</strong></div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- QUIZ & LATIHAN INTERAKTIF -->
+            <section id="quiz-section" class="scroll-mt-20 space-y-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-indigo-600 text-white shadow-lg">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Kuis Pemahaman Konsep</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Uji sejauh mana pemahaman kamu mengenai materi ProbStat</p>
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+                    <!-- Quiz Progress & Score Header -->
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <span id="quiz-step" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Soal 1 dari 5</span>
+                        <span id="quiz-score-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Skor: 0</span>
+                    </div>
+
+                    <!-- Question Container -->
+                    <div id="quiz-container" class="space-y-4">
+                        <h4 id="quiz-question" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
+                            Loading pertanyaan...
+                        </h4>
+                        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Options injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Feedback / Explanation Box -->
+                    <div id="quiz-feedback" class="hidden p-4 rounded-2xl text-xs space-y-1">
+                        <!-- Dynamic Feedback Message -->
+                    </div>
+
+                    <!-- Quiz Navigation Buttons -->
+                    <div class="flex justify-end pt-2">
+                        <button id="next-quiz-btn" class="hidden px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all">
+                            Pertanyaan Selanjutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+            <p class="font-semibold text-slate-700 dark:text-slate-300">Rangkuman Probabilitas & Statistik Interaktif</p>
+            <p>Dirancang untuk Mahasiswa Teknik Elektro & Praktisi Data</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            function updateTheme(isDark) {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    themeIcon.className = 'fa-solid fa-sun text-amber-400 text-lg';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeIcon.className = 'fa-solid fa-moon text-slate-600 text-lg';
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                updateTheme(true);
+            } else {
+                updateTheme(false);
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.contains('dark');
+                updateTheme(!isDark);
+            });
+
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            function toggleSidebar(show) {
+                if (show) {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebarOverlay.classList.remove('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.add('hidden');
+                }
+            }
+
+            mobileMenuBtn.addEventListener('click', () => toggleSidebar(true));
+            closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
+            sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+            // Close sidebar when link is clicked on mobile
+            document.querySelectorAll('.nav-item').forEach(link => {
+                link.addEventListener('click', () => toggleSidebar(false));
+            });
+
+            const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('clear-search');
+            const sections = document.querySelectorAll('.searchable-section');
+            const resultsBox = document.getElementById('search-results-box');
+            const searchCountText = document.getElementById('search-count');
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                if (query.length > 0) {
+                    clearSearchBtn.classList.remove('hidden');
+                    let matchCount = 0;
+
+                    sections.forEach(sec => {
+                        const text = sec.innerText.toLowerCase();
+                        if (text.includes(query)) {
+                            sec.classList.remove('hidden');
+                            matchCount++;
+                        } else {
+                            sec.classList.add('hidden');
+                        }
+                    });
+
+                    resultsBox.classList.remove('hidden');
+                    searchCountText.innerText = `${matchCount} bagian ditemukan`;
+                } else {
+                    resetSearch();
+                }
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                resetSearch();
+            });
+
+            function resetSearch() {
+                clearSearchBtn.classList.add('hidden');
+                resultsBox.classList.add('hidden');
+                sections.forEach(sec => sec.classList.remove('hidden'));
+            }
+
+            const btnCalcStats = document.getElementById('btn-calc-stats');
+            btnCalcStats.addEventListener('click', calculateStatistics);
+
+            function calculateStatistics() {
+                const rawInput = document.getElementById('calc-data-input').value;
+                const arr = rawInput.split(',')
+                    .map(item => parseFloat(item.trim()))
+                    .filter(val => !isNaN(val))
+                    .sort((a, b) => a - b);
+
+                if (arr.length === 0) {
+                    alert('Mohon masukkan angka yang valid dipisahkan dengan koma!');
+                    return;
+                }
+
+                const n = arr.length;
+                const sum = arr.reduce((acc, curr) => acc + curr, 0);
+                const mean = sum / n;
+
+                // Median calculation
+                let median = 0;
+                if (n % 2 === 1) {
+                    median = arr[Math.floor(n / 2)];
+                } else {
+                    median = (arr[n / 2 - 1] + arr[n / 2]) / 2;
+                }
+
+                // Mode calculation
+                const freqMap = {};
+                let maxFreq = 0;
+                arr.forEach(val => {
+                    freqMap[val] = (freqMap[val] || 0) + 1;
+                    if (freqMap[val] > maxFreq) maxFreq = freqMap[val];
+                });
+
+                let modes = [];
+                if (maxFreq > 1) {
+                    for (const key in freqMap) {
+                        if (freqMap[key] === maxFreq) modes.push(key);
+                    }
+                }
+                const modeText = modes.length > 0 ? modes.join(', ') : 'Tidak ada';
+
+                // Range
+                const range = arr[n - 1] - arr[0];
+
+                // Sample Standard Deviation
+                let sampleVar = 0;
+                if (n > 1) {
+                    const varianceSum = arr.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0);
+                    sampleVar = varianceSum / (n - 1);
+                }
+                const stdDev = Math.sqrt(sampleVar);
+
+                // Update UI
+                document.getElementById('out-n').innerText = n;
+                document.getElementById('out-mean').innerText = mean.toFixed(2);
+                document.getElementById('out-median').innerText = median % 1 === 0 ? median : median.toFixed(2);
+                document.getElementById('out-mode').innerText = modeText;
+                document.getElementById('out-range').innerText = range.toFixed(2);
+                document.getElementById('out-std').innerText = stdDev.toFixed(2);
+            }
+
+            const btnCalcSturges = document.getElementById('btn-calc-sturges');
+            btnCalcSturges.addEventListener('click', () => {
+                const n = parseFloat(document.getElementById('sturges-n').value);
+                const xmax = parseFloat(document.getElementById('sturges-max').value);
+                const xmin = parseFloat(document.getElementById('sturges-min').value);
+
+                if (!n || isNaN(xmax) || isNaN(xmin) || n <= 0) {
+                    alert('Mohon masukkan nilai N, Xmax, dan Xmin yang valid!');
+                    return;
+                }
+
+                const R = xmax - xmin;
+                const kRaw = 1 + 3.3 * Math.log10(n);
+                const kRound = Math.round(kRaw);
+                const iRaw = R / kRound;
+                const iRound = Math.ceil(iRaw);
+
+                document.getElementById('out-sturges-r').innerText = R;
+                document.getElementById('out-sturges-k').innerText = `${kRaw.toFixed(2)} → ${kRound}`;
+                document.getElementById('out-sturges-i').innerText = `${iRaw.toFixed(2)} → ${iRound}`;
+            });
+
+            const quizData = [
+                {
+                    q: "Hasil pengukuran tegangan arus listrik sebesar 220.5 Volt termasuk ke dalam jenis data apa?",
+                    options: [
+                        "Data Kualitatif & Diskrit",
+                        "Data Kuantitatif & Kontinu",
+                        "Data Kuantitatif & Diskrit",
+                        "Data Sekunder & Nominal"
+                    ],
+                    correct: 1,
+                    explanation: "Nilai tegangan 220.5 V adalah angka hasil pengukuran yang dapat berupa pecahan, sehingga termasuk Kuantitatif & Kontinu."
+                },
+                {
+                    q: "Skala pengukuran yang memiliki urutan dan dapat membedakan kategori, tetapi TIDAK memiliki nilai nol mutlak adalah...",
+                    options: [
+                        "Nominal",
+                        "Ordinal",
+                        "Interval",
+                        "Rasio"
+                    ],
+                    correct: 2,
+                    explanation: "Skala Interval memiliki urutan dan jarak yang sama (seperti Suhu °C), namun tidak memiliki nol mutlak."
+                },
+                {
+                    q: "Jika terdapat himpunan data yang sangat miring ke kanan (Positif Skewness), maka hubungan nilai pemusatannya adalah...",
+                    options: [
+                        "Mean > Median > Modus",
+                        "Modus > Median > Mean",
+                        "Mean = Median = Modus",
+                        "Median > Mean > Modus"
+                    ],
+                    correct: 0,
+                    explanation: "Pada kemiringan positif (miring kanan), nilai Mean akan ditarik oleh nilai-nilai tinggi sehingga Mean > Median > Modus."
+                },
+                {
+                    q: "Manakah ukuran statistik yang paling TAHAN (resisten) terhadap pengaruh data Outlier?",
+                    options: [
+                        "Mean (Rata-rata)",
+                        "Range (Jangkauan)",
+                        "Median (Nilai Tengah)",
+                        "Varians"
+                    ],
+                    correct: 2,
+                    explanation: "Median hanya melihat urutan posisi tengah, sehingga tidak terpengaruh oleh seberapa ekstrem nilai data terbawah/teratas."
+                },
+                {
+                    q: "Rumus Aturan Sturges yang digunakan untuk menentukan banyak kelas (k) dari n buah data adalah...",
+                    options: [
+                        "k = 1 + 3.3 log(n)",
+                        "k = R / i",
+                        "k = (Xmax - Xmin) / n",
+                        "k = 100% * (f / N)"
+                    ],
+                    correct: 0,
+                    explanation: "Aturan Sturges dirumuskan sebagai: k = 1 + 3.3 log(n)."
+                }
+            ];
+
+            let currentQuizIndex = 0;
+            let userScore = 0;
+
+            const quizStepText = document.getElementById('quiz-step');
+            const quizScoreBadge = document.getElementById('quiz-score-badge');
+            const quizQuestion = document.getElementById('quiz-question');
+            const quizOptions = document.getElementById('quiz-options');
+            const quizFeedback = document.getElementById('quiz-feedback');
+            const nextQuizBtn = document.getElementById('next-quiz-btn');
+
+            function loadQuiz() {
+                const current = quizData[currentQuizIndex];
+                quizStepText.innerText = `Soal ${currentQuizIndex + 1} dari ${quizData.length}`;
+                quizQuestion.innerText = current.q;
+                quizOptions.innerHTML = '';
+                quizFeedback.className = 'hidden p-4 rounded-2xl text-xs space-y-1';
+                nextQuizBtn.classList.add('hidden');
+
+                current.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all flex items-center justify-between';
+                    btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt}</span> <i class="fa-regular fa-circle text-slate-400"></i>`;
+                    btn.onclick = () => selectQuizAnswer(idx, btn);
+                    quizOptions.appendChild(btn);
+                });
+            }
+
+            function selectQuizAnswer(selectedIndex, btnElement) {
+                const current = quizData[currentQuizIndex];
+                const optionButtons = quizOptions.querySelectorAll('button');
+
+                // Disable all options
+                optionButtons.forEach(btn => btn.disabled = true);
+
+                if (selectedIndex === current.correct) {
+                    userScore += 20;
+                    quizScoreBadge.innerText = `Skor: ${userScore}`;
+                    btnElement.className = 'w-full p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-left text-xs font-semibold text-emerald-800 dark:text-emerald-200 transition-all flex items-center justify-between';
+                    btnElement.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-500 text-base';
+
+                    quizFeedback.className = 'p-4 rounded-2xl text-xs bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 block';
+                    quizFeedback.innerHTML = `<strong>Benar! 🎉</strong> <p>${current.explanation}</p>`;
+                } else {
+                    btnElement.className = 'w-full p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-left text-xs font-semibold text-rose-800 dark:text-rose-200 transition-all flex items-center justify-between';
+                    btnElement.querySelector('i').className = 'fa-solid fa-circle-xmark text-rose-500 text-base';
+
+                    // Highlight correct answer
+                    optionButtons[current.correct].className = 'w-full p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-left text-xs font-semibold text-emerald-800 dark:text-emerald-200 transition-all flex items-center justify-between';
+
+                    quizFeedback.className = 'p-4 rounded-2xl text-xs bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 block';
+                    quizFeedback.innerHTML = `<strong>Kurang Tepat! 😅</strong> <p>${current.explanation}</p>`;
+                }
+
+                nextQuizBtn.classList.remove('hidden');
+            }
+
+            nextQuizBtn.addEventListener('click', () => {
+                currentQuizIndex++;
+                if (currentQuizIndex < quizData.length) {
+                    loadQuiz();
+                } else {
+                    // Quiz completed
+                    quizQuestion.innerText = `Kuis Selesai! Skor Akhir Kamu: ${userScore} / 100`;
+                    quizOptions.innerHTML = `
+                        <div class="col-span-2 text-center p-6 bg-indigo-50 dark:bg-indigo-950/50 rounded-2xl">
+                            <p class="text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                                ${userScore >= 80 ? 'Sangat Bagus! Kamu sudah menguasai konsep ProbStat dengan baik.' : 'Bagus! Coba review kembali rumus-rumus di atas untuk hasil lebih maksimal.'}
+                            </p>
+                        </div>
+                    `;
+                    quizFeedback.className = 'hidden';
+                    nextQuizBtn.innerText = 'Ulangi Kuis';
+                    nextQuizBtn.onclick = () => {
+                        currentQuizIndex = 0;
+                        userScore = 0;
+                        quizScoreBadge.innerText = 'Skor: 0';
+                        nextQuizBtn.innerText = 'Pertanyaan Selanjutnya';
+                        loadQuiz();
+                    };
+                }
+            });
+
+            // Initial load
+            loadQuiz();
+            calculateStatistics();
+        });
+    </script>
+</body>
+</html>
